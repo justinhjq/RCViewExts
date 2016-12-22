@@ -6,3 +6,12 @@
 ```Java
  recyclerview.setLayoutManager(new TagsVerticalLayoutManager());
 ```
+## EXTRecyclerAdapter/MultiType 封装了RecyclerView.Adapter
+```Java
+EXTRecyclerAdapter<String> adapter = new EXTRecyclerAdapter<String>(R.layout.item_tag_view) {
+            @Override
+            public void onBindViewHolder(EXTViewHolder holder, int position, String data) {
+                holder.setText(R.id.text, data);
+            }
+        };
+```
