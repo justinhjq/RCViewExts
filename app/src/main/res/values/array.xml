@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string-array name="menu">
+
+        <item>红烧牛肉面</item>
+        <item>番茄牛肉面</item>
+        <item>刀削面</item>
+        <item>肯德基吮指原味鸡</item>
+        <item>上校鸡块</item>
+        <item>全家桶</item>
+        <item>番茄炒蛋</item>
+        <item>劲脆鸡腿堡</item>
+        <item>奥尔良烤鸡腿堡</item>
+        <item>鱼香肉丝</item>
+        <item>青椒土豆丝</item>
+        <item>干锅花菜</item>
+        <item>干锅豆腐片</item>
+        <item>红烧鲫鱼</item>
+        <item>糖醋排骨</item>
+        <item>老母鸡汤</item>
+        <item>酸菜鱼</item>
+        <item>豆花鱼</item>
+        <item>韭菜炒鸡蛋</item>
+        <item>涮羊肉</item>
+        <item>红糖混沌</item>
+        <item>鱼排</item>
+        <item>鸡排</item>
+        <item>鲍鱼</item>
+        <item>牡蛎</item>
+        <item>龙门花甲</item>
+        <item>干拌面</item>
+        <item>扁肉馄钝</item>
+        <item>干锅鸭头</item>
+        <item>清蒸鲈鱼</item>
+        <item>羊脆骨</item>
+        <item>水煮肉片</item>
+        <item>平桥豆腐羹</item>
+        <item>西红柿蛋汤</item>
+        <item>扬州炒饭</item>
+        <item>青菜豆腐汤</item>
+        <item>美玲粥</item>
+        <item>小米粥</item>
+        
+    </string-array>
+    
+</resources>
