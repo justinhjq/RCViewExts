@@ -135,14 +135,22 @@ public class TagsHorizontalLayoutManager extends RecyclerView.LayoutManager {
                 int mFirstVisiPos = getPosition(firstView) - 1;
                 for (int i = mFirstVisiPos; i >= 0; i--) {
                     Rect rect = mItemRects.get(i);
-                    View scrap = recycler.getViewForPosition(i);
-                    addView(scrap, 0);// 加载最左侧
-                    measureChildWithMargins(scrap, 0, 0);
 
-                    layoutDecoratedWithMargins(scrap, rect.left - mHorizontalOffset, rect.top, rect.right - mHorizontalOffset, rect.bottom);
+                    if (rect.right - mHorizontalOffset < getPaddingLeft()) {
+                        // 继续遍历 可能之后存在宽度足够宽到可以展示在界面上的View
+                        continue;
+                    } else {
+                        View scrap = recycler.getViewForPosition(i);
+                        addView(scrap, 0);// 加载最左侧
+                        measureChildWithMargins(scrap, 0, 0);
+
+                        layoutDecoratedWithMargins(scrap, rect.left - mHorizontalOffset, rect.top, rect.right - mHorizontalOffset, rect.bottom);
+
+                    }
                 }
             }
         }
+
     }
 
     @Override
