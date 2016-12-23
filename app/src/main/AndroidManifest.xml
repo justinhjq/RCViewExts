@@ -19,6 +19,10 @@
 
         <activity android:name="ttyy.com.recyclerexts.demo.TagsVerticalActivity">
         </activity>
+        
+        <activity android:name="ttyy.com.recyclerexts.demo.TagsHorizontalActivity">
+        </activity>
+        
     </application>
 
 </manifest>
