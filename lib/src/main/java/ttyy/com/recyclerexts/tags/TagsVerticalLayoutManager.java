@@ -10,7 +10,9 @@ import android.view.ViewGroup;
  * Author: hjq
  * Date  : 2016/12/21 13:23
  * Name  : TagsVerticalLayoutManager
- * Intro : 带复用的标签流
+ * Intro : 带复用的标签流 垂直方向
+ *        StaggeredGridLayoutManager 也可以满足需求
+ *        此类作研究LayoutManager  学习性扩展
  * Modification  History:
  * Date          Author        	 Version          Description
  * ----------------------------------------------------------
