@@ -32,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.tv_tags_horizontal:
-
+                intent = new Intent(this, TagsHorizontalActivity.class);
+                startActivity(intent);
                 break;
         }
     }
