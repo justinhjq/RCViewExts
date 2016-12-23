@@ -103,7 +103,7 @@ public class TagsVerticalLayoutManager extends RecyclerView.LayoutManager {
             // 回收检查从上层到下层 层层回收
             for (int i = getChildCount() - 1; i >= 0; i--) {
                 View item = getChildAt(i);
-                if (dy > 0 && getDecoratedBottom(item) < topOffset) {
+                if (getDecoratedBottom(item) < topOffset) {
                     // 上滑动 出界回收
                     removeAndRecycleView(item, recycler);
                 } else if (getDecoratedTop(item) > getHeight() - getPaddingBottom()) {
