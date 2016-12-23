@@ -60,6 +60,18 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         return null;
     }
 
+    
+    public boolean removeDataForPosition(int position){
+        if(datas != null){
+            if(position > 0 && position < datas.size()){
+                datas.remove(position);
+                notifyItemRemoved(position);
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public int getItemViewType(int position) {
         if(mMultiType.getViewTypes() > 0){
