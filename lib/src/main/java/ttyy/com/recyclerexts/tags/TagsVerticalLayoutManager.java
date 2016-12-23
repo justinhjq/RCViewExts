@@ -11,8 +11,8 @@ import android.view.ViewGroup;
  * Date  : 2016/12/21 13:23
  * Name  : TagsVerticalLayoutManager
  * Intro : 带复用的标签流 垂直方向
- *        StaggeredGridLayoutManager 也可以满足需求
- *        此类作研究LayoutManager  学习性扩展
+ * StaggeredGridLayoutManager 也可以满足需求
+ * 此类作研究LayoutManager  学习性扩展
  * Modification  History:
  * Date          Author        	 Version          Description
  * ----------------------------------------------------------
@@ -234,6 +234,13 @@ public class TagsVerticalLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         mVerticalOffset += dy;
+        
+        /*
+         *  偏移取负值原因
+         *  Android 源码对dx的处理为 -dx/-dy  以减偏移量处理View的滚动（刷新重绘时以-dx/-dy为绘制的偏移）
+         *  系统源码 根据如下位置刷新
+         *  tmpr.set(l - dx, t - dy, r - dx, b - dy)
+         */
         offsetChildrenVertical(-dy);
         fill(recycler, state, dy);
         return dy;
