@@ -12,7 +12,14 @@
 ```Java
  recyclerview.setLayoutManager(new TagsHorizontalLayoutManager());
 ```
-
+* TagsAdapter
+<br>基于EXTRecyclerAdapter扩展的适用于TagsLayoutManager，标签流的数据适配器
+```Java
+TagsAdapter adapter;
+adapter.setMode(mode); // 设置选中模式 SingleChoice, Multichoice, None
+adapter.getSelectedPosition(); // 获取选中的位置
+adapter.getSelectedPositions();// 获取选中的位置
+```
 ### EXTRecyclerAdapter/MultiType 封装了RecyclerView.Adapter
 ```Java
 EXTRecyclerAdapter<String> adapter = new EXTRecyclerAdapter<String>(R.layout.item_tag_view) {
