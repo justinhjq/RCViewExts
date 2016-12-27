@@ -35,6 +35,7 @@ helper.attachToRecyclerView(recycler_view);// helper生效
 ```
 * CycleAlbumCallback、CycleAlbumLayoutManager
 <br>循环大图相册
+
 ### EXTRecyclerAdapter/MultiType 封装了RecyclerView.Adapter
 ```Java
 EXTRecyclerAdapter<String> adapter = new EXTRecyclerAdapter<String>(R.layout.item_tag_view) {
