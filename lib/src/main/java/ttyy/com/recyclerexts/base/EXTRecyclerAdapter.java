@@ -11,6 +11,9 @@ import java.util.List;
  * Date  : 2016/12/21 13:27
  * Name  : EXTRecyclerAdapter
  * Intro : Edit By Administrator
+ *        setAdapter/notifyDataSetChanged时，LayotuManager生命周期方法调用流程:
+ *          1. removeAndRecycleAllViews(recycler)
+ *          2. onLayoutChildren，从垃圾池取出itemview，进行onBindHolder绑定
  * Modification  History:
  * Date          Author        	 Version          Description
  * ----------------------------------------------------------
