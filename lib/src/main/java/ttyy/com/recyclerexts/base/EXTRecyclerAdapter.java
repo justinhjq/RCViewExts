@@ -24,7 +24,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
      * 内置
      * 保证无论何时设置OnItemClickListener时，都会有效
      */
-    private OnItemClickListener listener = new OnItemClickListener() {
+    protected OnItemClickListener listener = new OnItemClickListener() {
         @Override
         public void onItemClicked(View itemView, int position) {
             if(mOnItemClickListener != null){
@@ -51,6 +51,10 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         this.datas = datas;
     }
 
+    public List<D> getDatas(){
+        return datas;
+    }
+
     public D getDataForPosition(int position){
         if(datas != null){
             if(position > 0 && position < datas.size()){
@@ -60,7 +64,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         return null;
     }
 
-    
+
     public boolean removeDataForPosition(int position){
         if(datas != null){
             if(position > 0 && position < datas.size()){
