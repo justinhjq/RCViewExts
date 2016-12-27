@@ -45,8 +45,13 @@ public class TagsVerticalLayoutManager extends RecyclerView.LayoutManager {
      * Item layout
      * <p>
      * RecyclerView onMeasure时会触发两次
+     *
      * RecyclerView setAdapter会触发该方法
      * Adapter notifyDataSetChanged会触发该方法
+     *
+     * setAdapter/notifyDataSetChanged时，LayotuManager生命周期方法调用流程:
+     * 1. removeAndRecycleAllViews(recycler)
+     * 2. onLayoutChildren，从垃圾池取出itemview，进行onBindHolder绑定
      *
      * @param recycler 回收管理器
      * @param state
@@ -234,7 +239,7 @@ public class TagsVerticalLayoutManager extends RecyclerView.LayoutManager {
             }
         }
         mVerticalOffset += dy;
-        
+
         /*
          *  偏移取负值原因
          *  Android 源码对dx的处理为 -dx/-dy  以减偏移量处理View的滚动（刷新重绘时以-dx/-dy为绘制的偏移）
