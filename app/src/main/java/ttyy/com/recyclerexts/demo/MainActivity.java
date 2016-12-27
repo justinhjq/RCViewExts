@@ -35,6 +35,14 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this, TagsHorizontalActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.tv_drag_swap:
+                intent = new Intent(this, DragSwapActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.tv_swipe:
+                intent = new Intent(this, SwipeDeleteActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 }
