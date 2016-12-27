@@ -19,10 +19,16 @@
 
         <activity android:name="ttyy.com.recyclerexts.demo.TagsVerticalActivity">
         </activity>
-        
+
         <activity android:name="ttyy.com.recyclerexts.demo.TagsHorizontalActivity">
         </activity>
-        
+
+        <activity android:name="ttyy.com.recyclerexts.demo.DragSwapActivity">
+        </activity>
+
+        <activity android:name="ttyy.com.recyclerexts.demo.SwipeDeleteActivity">
+        </activity>
+
     </application>
 
 </manifest>
