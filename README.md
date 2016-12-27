@@ -20,6 +20,19 @@ adapter.setMode(mode); // 设置选中模式 SingleChoice, Multichoice, None
 adapter.getSelectedPosition(); // 获取选中的位置
 adapter.getSelectedPositions();// 获取选中的位置
 ```
+### ItemTouchHelper、ItemTouchHelper.Callback
+* SimpleDragSwapCallback
+<br>拖拽替换ItemView，同时替换相应的数据源
+```Java
+ItemTouchHelper helper = new ItemTouchHelper(new SimpleDragSwapCallback(adapter));
+helper.attachToRecyclerView(recycler_view);// helper生效
+```
+* SimpleSwipeCallback
+<br>滑动删除ItemView，同时删除相应的数据源
+```Java
+ItemTouchHelper helper = new ItemTouchHelper(new SimpleSwipeCallback(adapter));
+helper.attachToRecyclerView(recycler_view);// helper生效
+```
 ### EXTRecyclerAdapter/MultiType 封装了RecyclerView.Adapter
 ```Java
 EXTRecyclerAdapter<String> adapter = new EXTRecyclerAdapter<String>(R.layout.item_tag_view) {
