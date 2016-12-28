@@ -29,6 +29,9 @@
         <activity android:name="ttyy.com.recyclerexts.demo.SwipeDeleteActivity">
         </activity>
 
+        <activity android:name="ttyy.com.recyclerexts.demo.CycleAlbumActivity">
+        </activity>
+
     </application>
 
 </manifest>
