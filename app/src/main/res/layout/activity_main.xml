@@ -51,4 +51,16 @@
         android:onClick="onClick"
         android:background="@drawable/radius_menu"/>
 
+    <TextView
+        android:id="@+id/tv_cyclealbum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:padding="15dp"
+        android:gravity="center"
+        android:text="CycleAlbum LayouManager"
+        android:textSize="18sp"
+        android:onClick="onClick"
+        android:background="@drawable/radius_menu"/>
+
 </LinearLayout>
