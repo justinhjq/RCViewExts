@@ -34,8 +34,12 @@ ItemTouchHelper helper = new ItemTouchHelper(new SimpleSwipeCallback(adapter));
 helper.attachToRecyclerView(recycler_view);// helper生效
 ```
 * CycleAlbumCallback、CycleAlbumLayoutManager
-<br>循环大图相册
-
+<br>循环大图相册查看
+```Java
+recycler_view.setLayoutManager(new CycleAlbumLayoutManager());// 设置对应的布局管理器
+ItemTouchHelper helper = new ItemTouchHelper(new CycleAlbumCallback(adapter));// 设置对应的触摸动作处理回调
+helper.attachToRecyclerView(recycler_view);
+```
 ### EXTRecyclerAdapter/MultiType 封装了RecyclerView.Adapter
 ```Java
 EXTRecyclerAdapter<String> adapter = new EXTRecyclerAdapter<String>(R.layout.item_tag_view) {
