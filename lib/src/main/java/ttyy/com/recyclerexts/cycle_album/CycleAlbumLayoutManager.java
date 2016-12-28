@@ -16,7 +16,11 @@ import android.view.ViewGroup;
  */
 public class CycleAlbumLayoutManager extends RecyclerView.LayoutManager {
 
-    private int mCycleCount = 4;
+    CycleAlbumConfig mConfig = CycleAlbumConfig.getInstance();
+
+    public CycleAlbumLayoutManager(){
+
+    }
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
@@ -56,8 +60,31 @@ public class CycleAlbumLayoutManager extends RecyclerView.LayoutManager {
 
     private void fill(RecyclerView.Recycler recycler, RecyclerView.State state){
 
-        int mFirstVisiPos = getItemCount() > mCycleCount ? getItemCount() - mCycleCount : 0;
-        int mLastVisiPos = getItemCount();
+        int mFirstVisiPos = getItemCount() > mConfig.getCycleCount() ? getItemCount() - mConfig.getCycleCount() : 0;
+        int mLastVisiPos = getItemCount() - 1;
+        int topOffset = getPaddingTop();
+        int leftOffset = getPaddingLeft();
+        // 最后的排列在最上面
+        // 重叠排列
+        // 居中展示
+        for(int i = mFirstVisiPos; i <= mLastVisiPos; i++){
+
+            View scrap = recycler.getViewForPosition(i);
+            addView(scrap);
+            measureChildWithMargins(scrap, 0, 0);
+
+            leftOffset = (getWidth() - getDecoratedMeasurementHorizontal(scrap)) / 2;
+            topOffset = (getHeight() - getDecoratedMeasurementVertical(scrap)) / 2;
+
+            layoutDecoratedWithMargins(scrap, leftOffset, topOffset, leftOffset + getDecoratedMeasurementHorizontal(scrap), topOffset + getDecoratedMeasurementVertical(scrap));
+
+            int level = mLastVisiPos - i;
+            if(level >= 0){
+                scrap.setTranslationY(mConfig.getYGapUnit() * level);
+                scrap.setScaleX(1 - mConfig.getScaleUnit() * level);
+                scrap.setScaleY(1 - mConfig.getScaleUnit() * level);
+            }
+        }
 
     }
 
@@ -68,6 +95,6 @@ public class CycleAlbumLayoutManager extends RecyclerView.LayoutManager {
 
     private int getDecoratedMeasurementVertical(View view){
         final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
-        return getDecoratedMeasuredWidth(view) + params.topMargin + params.bottomMargin;
+        return getDecoratedMeasuredHeight(view) + params.topMargin + params.bottomMargin;
     }
 }
