@@ -43,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this, SwipeDeleteActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.tv_cyclealbum:
+                intent = new Intent(this, CycleAlbumActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 }
