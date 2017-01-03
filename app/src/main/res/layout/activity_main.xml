@@ -63,4 +63,16 @@
         android:onClick="onClick"
         android:background="@drawable/radius_menu"/>
 
+    <TextView
+        android:id="@+id/tv_vertical_itemdecoration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:padding="15dp"
+        android:gravity="center"
+        android:text="Vertical ItemDecoration"
+        android:textSize="18sp"
+        android:onClick="onClick"
+        android:background="@drawable/radius_menu"/>
+
 </LinearLayout>

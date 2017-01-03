@@ -32,6 +32,9 @@
         <activity android:name="ttyy.com.recyclerexts.demo.CycleAlbumActivity">
         </activity>
 
+        <activity android:name="ttyy.com.recyclerexts.demo.SimpleVerticalDecorationActivity">
+        </activity>
+
     </application>
 
 </manifest>

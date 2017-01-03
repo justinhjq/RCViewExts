@@ -47,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this, CycleAlbumActivity.class);
                 startActivity(intent);
                 break;
+            case R.id.tv_vertical_itemdecoration:
+                intent = new Intent(this, SimpleVerticalDecorationActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 }
