@@ -19,7 +19,13 @@ TagsAdapter adapter;
 adapter.setMode(mode); // 设置选中模式 SingleChoice, Multichoice, None
 adapter.getSelectedPosition(); // 获取选中的位置
 adapter.getSelectedPositions();// 获取选中的位置
-```
+``` 
+### ItemDecoration
+* SimpleVerticalItemDecoration 
+<br>竖向列表的分割线简单实现
+* FloatingTitleDecoration 
+<br>基于ItemDecoration实现的可推动/联动的悬浮Title
+
 ### ItemTouchHelper、ItemTouchHelper.Callback
 * SimpleDragSwapCallback
 <br>拖拽替换ItemView，同时替换相应的数据源
