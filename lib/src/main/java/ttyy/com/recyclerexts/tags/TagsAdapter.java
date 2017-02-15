@@ -60,6 +60,10 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
         this.mChoiceMode.clearChoiceCache();
     }
 
+    public Mode getMode(){
+        return mChoiceMode;
+    }
+
     /**
      * 清空缓存
      */
