@@ -12,6 +12,11 @@
 ```Java
  recyclerview.setLayoutManager(new TagsHorizontalLayoutManager());
 ```
+* SquareTagsLayoutManager
+<br>已屏幕宽等分的豆腐块
+```Java
+ recyclerview.setLayoutManager(new SquareTagsLayoutManager.Builder(this).build());
+```
 * TagsAdapter
 <br>基于EXTRecyclerAdapter扩展的适用于TagsLayoutManager，标签流的数据适配器
 ```Java
