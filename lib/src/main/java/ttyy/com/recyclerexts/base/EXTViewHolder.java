@@ -47,6 +47,11 @@ public class EXTViewHolder extends RecyclerView.ViewHolder{
         return holder;
     }
 
+    public static EXTViewHolder from(View itemView){
+        EXTViewHolder holder = new EXTViewHolder(itemView, -1);
+        return holder;
+    }
+
     public <T extends View> T findViewById(int id){
         View target = mHolderViews.get(id);
         if(target == null){
@@ -96,6 +101,10 @@ public class EXTViewHolder extends RecyclerView.ViewHolder{
 
     public void setOnItemClickListener(EXTRecyclerAdapter.OnItemClickListener listener){
         this.mOnItemClickListener = listener;
+    }
+
+    public EXTRecyclerAdapter.OnItemClickListener getOnItemClickListener(){
+        return this.mOnItemClickListener;
     }
 
 }
