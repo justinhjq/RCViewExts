@@ -1,5 +1,6 @@
 package ttyy.com.recyclerexts.base;
 
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
@@ -24,8 +25,8 @@ import java.util.List;
  */
 public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTViewHolder> {
 
-    public static final int HEADER = -1000;
-    public static final int FOOTER = -1001;
+    private static final int HEADER = -1000;
+    private static final int FOOTER = -1001;
 
     protected List<D> datas;
     protected MultiType<D> mMultiType;
@@ -79,7 +80,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
     }
 
     public EXTRecyclerAdapter addFooterView(View footerView) {
-        footerViewPool.addView(footerView, footerViewPool.getCount());
+        footerViewPool.addView(footerView, 0);
         return this;
     }
 
@@ -98,6 +99,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
             datas = new ArrayList<>();
         }
         datas.add(pos, d);
+        notifyItemInserted(pos + getHeaderViewsCount());
         return this;
     }
 
@@ -124,7 +126,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         if (datas != null) {
             if (position > 0 && position < datas.size()) {
                 datas.remove(position);
-                notifyItemRemoved(position);
+                notifyItemRemoved(position + getHeaderViewsCount());
                 return true;
             }
         }
@@ -142,7 +144,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
             return FOOTER;
         } else {
             if (mMultiType.getViewTypes() > 0) {
-                return mMultiType.getItemType(position+getHeaderViewsCount(), getDataForPosition(position));
+                return mMultiType.getItemType(position + getHeaderViewsCount(), getDataForPosition(position));
             }
         }
         return super.getItemViewType(position);
@@ -169,7 +171,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
                 && holder.getOnItemClickListener() != listener) {
             holder.setOnItemClickListener(listener);
         }
-        onBindViewHolder(holder, position, getDataForPosition(position));
+        onBindViewHolder(holder, position, getDataForItemPosition(position));
     }
 
     public abstract void onBindViewHolder(EXTViewHolder holder, int position, D data);
@@ -201,27 +203,48 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         return footerViewPool.getCount();
     }
 
-    public boolean isHeaderView(int itemPosition){
+    public boolean isHeaderView(int itemPosition) {
         return itemPosition < headerViewPool.getCount();
     }
 
-    public boolean isFooterView(int itemPosition){
+    public boolean isFooterView(int itemPosition) {
         return itemPosition - getHeaderViewsCount() - getDatasCount() >= 0;
     }
 
     /**
-     * StaggeredGridLayoutMangaer Footer Header 单独一行设置
+     * StaggeredGridLayoutMangaer Footer Header 整行行设置
+     *
      * @param holder
      */
     @Override
-    public void onViewAttachedToWindow(EXTViewHolder holder) {
+    public final void onViewAttachedToWindow(EXTViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
-        if(lp != null
+        if (lp != null
                 && lp instanceof StaggeredGridLayoutManager.LayoutParams) {
             StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) lp;
             int pos = holder.getLayoutPosition();
             p.setFullSpan(isHeaderView(pos) || isFooterView(pos));
+        }
+    }
+
+    /**
+     * GridLayoutManager Header Footer 整行设置
+     * @param recyclerView
+     */
+    @Override
+    public final void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+        if (manager instanceof GridLayoutManager) {
+            final GridLayoutManager gridManager = ((GridLayoutManager) manager);
+            gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    return (isFooterView(position) || isHeaderView(position))
+                            ? gridManager.getSpanCount() : 1;
+                }
+            });
         }
     }
 
