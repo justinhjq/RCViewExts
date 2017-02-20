@@ -91,12 +91,15 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
     public EXTViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         int layoutId = mMultiType.getLayoutIdForType(viewType);
         EXTViewHolder holder = EXTViewHolder.from(parent, layoutId);
-        holder.setOnItemClickListener(listener);
-        return EXTViewHolder.from(parent, layoutId);
+        return holder;
     }
 
     @Override
     public void onBindViewHolder(EXTViewHolder holder, int position) {
+        if(listener != null
+                && holder.getOnItemClickListener() != listener){
+            holder.setOnItemClickListener(listener);
+        }
         onBindViewHolder(holder, position, datas.get(position));
     }
 
