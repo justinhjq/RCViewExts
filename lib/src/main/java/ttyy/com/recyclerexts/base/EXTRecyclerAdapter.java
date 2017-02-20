@@ -1,6 +1,7 @@
 package ttyy.com.recyclerexts.base;
 
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -23,8 +24,8 @@ import java.util.List;
  */
 public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTViewHolder> {
 
-    private static final int HEADER = -1000;
-    private static final int FOOTER = -1001;
+    public static final int HEADER = -1000;
+    public static final int FOOTER = -1001;
 
     protected List<D> datas;
     protected MultiType<D> mMultiType;
@@ -198,6 +199,30 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
      */
     public int getFooterViewsCount() {
         return footerViewPool.getCount();
+    }
+
+    public boolean isHeaderView(int itemPosition){
+        return itemPosition < headerViewPool.getCount();
+    }
+
+    public boolean isFooterView(int itemPosition){
+        return itemPosition - getHeaderViewsCount() - getDatasCount() >= 0;
+    }
+
+    /**
+     * StaggeredGridLayoutMangaer Footer Header 单独一行设置
+     * @param holder
+     */
+    @Override
+    public void onViewAttachedToWindow(EXTViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+        if(lp != null
+                && lp instanceof StaggeredGridLayoutManager.LayoutParams) {
+            StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) lp;
+            int pos = holder.getLayoutPosition();
+            p.setFullSpan(isHeaderView(pos) || isFooterView(pos));
+        }
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
