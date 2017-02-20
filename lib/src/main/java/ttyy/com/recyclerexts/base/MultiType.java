@@ -22,7 +22,7 @@ public abstract class MultiType<T> {
 
     public int getViewTypes() {
 
-        return 0;
+        return typeLayouts.size();
     }
 
     /**
