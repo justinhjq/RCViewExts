@@ -110,7 +110,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
 
     public D getDataForPosition(int position) {
         if (datas != null) {
-            if (position > 0 && position < datas.size()) {
+            if (position >= 0 && position < datas.size()) {
                 return datas.get(position);
             }
         }
