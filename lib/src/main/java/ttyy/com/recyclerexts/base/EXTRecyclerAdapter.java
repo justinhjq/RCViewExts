@@ -124,7 +124,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
 
     public boolean removeDataForPosition(int position) {
         if (datas != null) {
-            if (position > 0 && position < datas.size()) {
+            if (position >= 0 && position < datas.size()) {
                 datas.remove(position);
                 notifyItemRemoved(position + getHeaderViewsCount());
                 return true;
