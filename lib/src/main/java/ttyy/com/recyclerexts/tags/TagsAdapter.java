@@ -3,9 +3,13 @@ package ttyy.com.recyclerexts.tags;
 import android.view.View;
 import android.widget.Checkable;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
+import ttyy.com.recyclerexts.base.EXTViewHolder;
 import ttyy.com.recyclerexts.base.MultiType;
 
 /**
@@ -19,7 +23,7 @@ import ttyy.com.recyclerexts.base.MultiType;
  * ----------------------------------------------------------
  * 2016/12/26    Administrator   1.0              1.0
  */
-public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
+public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
     Mode mChoiceMode = Mode.None;
 
@@ -31,6 +35,25 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
     public TagsAdapter(MultiType<D> type) {
         super(type);
         updateDefaultListener();
+    }
+
+    @Override
+    public void onBindViewHolder(EXTViewHolder holder, int position, D data) {
+        if (mChoiceMode != Mode.None
+                && holder.getItemView() instanceof Checkable) {
+            if (mChoiceMode.isItemChecked(position)) {
+                ModeItem item = mChoiceMode.getModeItem(position);
+                item.mItemTarget = (Checkable) holder.getItemView();
+                if (!item.mItemTarget.isChecked()) {
+                    item.mItemTarget.setChecked(true);
+                }
+            } else {
+                Checkable item = (Checkable) holder.getItemView();
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                }
+            }
+        }
     }
 
     protected void updateDefaultListener() {
@@ -60,7 +83,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
         this.mChoiceMode.clearChoiceCache();
     }
 
-    public Mode getMode(){
+    public Mode getMode() {
         return mChoiceMode;
     }
 
@@ -69,6 +92,14 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
      */
     public void clearChoiceCache() {
         this.mChoiceMode.clearChoiceCache();
+    }
+
+    public boolean isItemChecked(int position) {
+        return mChoiceMode.isItemChecked(position);
+    }
+
+    public void setItemChecked(int position, boolean value) {
+        mChoiceMode.setItemChecked(position, value);
     }
 
     /**
@@ -106,14 +137,28 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
             @Override
             protected void onTagItemClicked(View itemView, int position) {
-                mSelectedPositions.clear();
-                mSelectedPositions.add(position);
 
+                mSelectedItemsDict.clear();
                 if (mLastSelectedTag != null) {
+
                     mLastSelectedTag.setChecked(false);
+
+                    if (mLastSelectedTag == itemView) {
+                        mLastSelectedTag = null;
+                        return;
+                    }
                 }
+
                 if (itemView instanceof Checkable) {
                     mLastSelectedTag = (Checkable) itemView;
+                    mLastSelectedTag.setChecked(true);
+
+                    ModeItem modeItem = new ModeItem();
+                    modeItem.position = position;
+                    modeItem.mItemTarget = mLastSelectedTag;
+                    modeItem.isChecked = true;
+                    mSelectedItemsDict.put(position, modeItem);
+
                 }
             }
         },
@@ -124,34 +169,121 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
         MultiChoice() {
             @Override
             protected void onTagItemClicked(View itemView, int position) {
-                mSelectedPositions.add(position);
                 if (itemView instanceof Checkable) {
                     Checkable tagItem = (Checkable) itemView;
                     tagItem.setChecked(!tagItem.isChecked());
+
+                    if (tagItem.isChecked()) {
+
+                        ModeItem modeItem = new ModeItem();
+                        modeItem.position = position;
+                        modeItem.mItemTarget = tagItem;
+                        modeItem.isChecked = true;
+
+                        mSelectedItemsDict.put(position, modeItem);
+                    } else {
+                        mSelectedItemsDict.remove(position);
+                    }
+
                 }
             }
         },
         /**
          * 没有选中模式
          */
-        None;
+        None {
+            @Override
+            public void clearChoiceCache() {
+
+            }
+
+            @Override
+            public boolean isItemChecked(int position) {
+                return false;
+            }
+
+            @Override
+            public void setItemChecked(int position, boolean value) {
+
+            }
+        };
 
         /**
          * 选中的Positions
          */
-        protected LinkedList<Integer> mSelectedPositions = new LinkedList<>();
+        protected HashMap<Integer, ModeItem> mSelectedItemsDict = new HashMap<>();
 
         protected void onTagItemClicked(View itemView, int position) {
 
         }
 
         public void clearChoiceCache() {
-            mSelectedPositions.clear();
+            for (Map.Entry<Integer, ModeItem> entry : mSelectedItemsDict.entrySet()) {
+
+                if (entry.getValue().mItemTarget != null) {
+                    entry.getValue().mItemTarget.setChecked(false);
+                }
+
+            }
+            mSelectedItemsDict.clear();
+        }
+
+        public void setItemChecked(int position, boolean value) {
+            if (value) {
+
+                ModeItem item = mSelectedItemsDict.get(position);
+                if (item != null) {
+
+                    if (item.mItemTarget != null) {
+                        item.mItemTarget.setChecked(true);
+                        item.isChecked = true;
+                    }
+                } else {
+                    item = new ModeItem();
+                    item.position = position;
+                    item.isChecked = true;
+                    mSelectedItemsDict.put(position, item);
+                }
+
+            } else {
+
+                ModeItem item = mSelectedItemsDict.get(position);
+                if (item != null) {
+                    if (item.mItemTarget != null) {
+                        item.mItemTarget.setChecked(false);
+                    }
+                }
+                mSelectedItemsDict.remove(position);
+
+            }
+        }
+
+        public boolean isItemChecked(int position) {
+            ModeItem item = mSelectedItemsDict.get(position);
+            if (item == null) {
+                return false;
+            } else {
+                return item.isChecked;
+            }
         }
 
         public LinkedList<Integer> getSelectedPositions() {
-            return mSelectedPositions;
+            return new LinkedList<>(mSelectedItemsDict.keySet());
         }
+
+        private ModeItem getModeItem(int position) {
+            return mSelectedItemsDict.get(position);
+        }
+    }
+
+    private static class ModeItem {
+
+        int position;
+
+        Checkable mItemTarget;
+
+        boolean isChecked;
+
     }
 
 }
