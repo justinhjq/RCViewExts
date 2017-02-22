@@ -5,7 +5,6 @@ import android.widget.Checkable;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
@@ -39,24 +38,22 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
     @Override
     public void onBindViewHolder(EXTViewHolder holder, int position, D data) {
+
         if (mChoiceMode != Mode.None
                 && holder.getItemView() instanceof Checkable) {
-            if (mChoiceMode.isItemChecked(position)) {
-                ModeItem item = mChoiceMode.getModeItem(position);
-                item.mItemTarget = (Checkable) holder.getItemView();
-                if (!item.mItemTarget.isChecked()) {
-                    item.mItemTarget.setChecked(true);
-                }
+            boolean isChecked = isItemChecked(position);
+            if (isChecked) {
+                ((Checkable) holder.getItemView()).setChecked(true);
             } else {
-                Checkable item = (Checkable) holder.getItemView();
-                if (item.isChecked()) {
-                    item.setChecked(false);
-                }
+                ((Checkable) holder.getItemView()).setChecked(false);
             }
         }
     }
 
     protected void updateDefaultListener() {
+
+        mChoiceMode.mAdapter = this;
+
         listener = new OnItemClickListener() {
             @Override
             public void onItemClicked(View itemView, int position) {
@@ -75,12 +72,14 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
      * @param mode
      */
     public void setChoiceMode(Mode mode) {
-        this.mChoiceMode = mode == null ? Mode.None : mode;
         /*
          * 枚举 是单例模式
          * 每次使用需要把上一次缓存的数据清空
          */
         this.mChoiceMode.clearChoiceCache();
+
+        this.mChoiceMode = mode == null ? Mode.None : mode;
+        this.mChoiceMode.mAdapter = this;
     }
 
     public Mode getMode() {
@@ -99,7 +98,11 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
     }
 
     public void setItemChecked(int position, boolean value) {
-        mChoiceMode.setItemChecked(position, value);
+        if (mChoiceMode == Mode.None) {
+            return;
+        } else {
+            mChoiceMode.setItemChecked(position, null, value);
+        }
     }
 
     /**
@@ -133,33 +136,69 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
          */
         SingleChoice() {
 
-            Checkable mLastSelectedTag;
+            ModeItem modeItem = new ModeItem() {
+                {
+                    position = -1;
+                    isChecked = false;
+                }
+            };
 
             @Override
             protected void onTagItemClicked(View itemView, int position) {
 
-                mSelectedItemsDict.clear();
-                if (mLastSelectedTag != null) {
-
-                    mLastSelectedTag.setChecked(false);
-
-                    if (mLastSelectedTag == itemView) {
-                        mLastSelectedTag = null;
-                        return;
-                    }
+                if (modeItem.position == position) {
+                    setItemChecked(position, itemView, false);
+                } else {
+                    setItemChecked(position, itemView, true);
                 }
+            }
 
-                if (itemView instanceof Checkable) {
-                    mLastSelectedTag = (Checkable) itemView;
-                    mLastSelectedTag.setChecked(true);
+            @Override
+            public void setItemChecked(int position, View itemView, boolean value) {
+                if (modeItem.position == -1) {
 
-                    ModeItem modeItem = new ModeItem();
                     modeItem.position = position;
-                    modeItem.mItemTarget = mLastSelectedTag;
-                    modeItem.isChecked = true;
-                    mSelectedItemsDict.put(position, modeItem);
+                    modeItem.isChecked = value;
 
+
+                } else if (modeItem.position == position) {
+
+                    modeItem.position = -1;
+                    modeItem.isChecked = false;
+
+                } else {
+
+                    mAdapter.notifyItemChanged(modeItem.position);
+
+                    modeItem.position = position;
+                    modeItem.isChecked = value;
                 }
+
+                if (itemView != null) {
+                    if (itemView instanceof Checkable) {
+                        Checkable tagItem = (Checkable) itemView;
+                        tagItem.setChecked(value);
+                    }
+                } else {
+                    mAdapter.notifyItemChanged(position);
+                }
+            }
+
+            @Override
+            public boolean isItemChecked(int position) {
+                return modeItem.position == position;
+            }
+
+            public ModeItem getModeItem(int position) {
+                if (modeItem.position == position) {
+                    return modeItem;
+                }
+                return null;
+            }
+
+            @Override
+            public void clearChoiceCache() {
+                super.clearChoiceCache();
             }
         },
 
@@ -169,22 +208,10 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
         MultiChoice() {
             @Override
             protected void onTagItemClicked(View itemView, int position) {
-                if (itemView instanceof Checkable) {
-                    Checkable tagItem = (Checkable) itemView;
-                    tagItem.setChecked(!tagItem.isChecked());
-
-                    if (tagItem.isChecked()) {
-
-                        ModeItem modeItem = new ModeItem();
-                        modeItem.position = position;
-                        modeItem.mItemTarget = tagItem;
-                        modeItem.isChecked = true;
-
-                        mSelectedItemsDict.put(position, modeItem);
-                    } else {
-                        mSelectedItemsDict.remove(position);
-                    }
-
+                if(isItemChecked(position)){
+                    setItemChecked(position, itemView, false);
+                }else {
+                    setItemChecked(position, itemView, true);
                 }
             }
         },
@@ -203,7 +230,7 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
             }
 
             @Override
-            public void setItemChecked(int position, boolean value) {
+            public void setItemChecked(int position, View itemView, boolean value) {
 
             }
         };
@@ -213,6 +240,8 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
          */
         protected HashMap<Integer, ModeItem> mSelectedItemsDict = new HashMap<>();
 
+        protected TagsAdapter mAdapter;
+
         protected void onTagItemClicked(View itemView, int position) {
 
         }
@@ -220,42 +249,36 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
         public void clearChoiceCache() {
             for (Map.Entry<Integer, ModeItem> entry : mSelectedItemsDict.entrySet()) {
 
-                if (entry.getValue().mItemTarget != null) {
-                    entry.getValue().mItemTarget.setChecked(false);
-                }
+                entry.getValue().isChecked = false;
 
             }
             mSelectedItemsDict.clear();
         }
 
-        public void setItemChecked(int position, boolean value) {
-            if (value) {
+        public void setItemChecked(int position, View itemView, boolean value) {
+            ModeItem modeItem = mSelectedItemsDict.get(position);
+            if (modeItem != null) {
 
-                ModeItem item = mSelectedItemsDict.get(position);
-                if (item != null) {
-
-                    if (item.mItemTarget != null) {
-                        item.mItemTarget.setChecked(true);
-                        item.isChecked = true;
-                    }
-                } else {
-                    item = new ModeItem();
-                    item.position = position;
-                    item.isChecked = true;
-                    mSelectedItemsDict.put(position, item);
-                }
+                modeItem.isChecked = !modeItem.isChecked;
 
             } else {
 
-                ModeItem item = mSelectedItemsDict.get(position);
-                if (item != null) {
-                    if (item.mItemTarget != null) {
-                        item.mItemTarget.setChecked(false);
-                    }
-                }
-                mSelectedItemsDict.remove(position);
+                modeItem = new ModeItem();
+                modeItem.position = position;
+                modeItem.isChecked = value;
+                mSelectedItemsDict.put(position, modeItem);
 
             }
+
+            if (itemView != null) {
+                if (itemView instanceof Checkable) {
+                    Checkable tagItem = (Checkable) itemView;
+                    tagItem.setChecked(value);
+                }
+            } else {
+                mAdapter.notifyItemChanged(position);
+            }
+
         }
 
         public boolean isItemChecked(int position) {
@@ -279,9 +302,6 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
     private static class ModeItem {
 
         int position;
-
-        Checkable mItemTarget;
-
         boolean isChecked;
 
     }
