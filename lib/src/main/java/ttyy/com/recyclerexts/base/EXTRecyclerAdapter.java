@@ -249,7 +249,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
+        this.mOnItemClickListener = listener;
     }
 
     public interface OnItemClickListener {
