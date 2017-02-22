@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
@@ -225,6 +226,7 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
             String title = mCachedPosTitleDict.get(position);
             if (mTitleDataUseCache
                     && TextUtils.isEmpty(title)) {
+                title = mCallback.titleForPosition(position);
                 mCachedPosTitleDict.put(position, title);
             }
             return title;
@@ -244,7 +246,8 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
             return this;
         }
 
-        ArrayList<Integer> copy = new ArrayList<>(mCachedTitlePositions.size());
+        // 初始化ArrayList的容纳能力
+        ArrayList<Integer> copy = new ArrayList<>(Arrays.asList(new Integer[mCachedTitlePositions.size()]));
         Collections.copy(copy, mCachedTitlePositions);
 
         HashMap<Integer, String> copyDict = new HashMap<>(mCachedPosTitleDict);
@@ -274,7 +277,7 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
             return this;
         }
 
-        ArrayList<Integer> copy = new ArrayList<>(mCachedTitlePositions.size());
+        ArrayList<Integer> copy = new ArrayList<>(Arrays.asList(new Integer[mCachedTitlePositions.size()]));
         Collections.copy(copy, mCachedTitlePositions);
 
         HashMap<Integer, String> copyDict = new HashMap<>(mCachedPosTitleDict);
