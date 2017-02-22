@@ -244,7 +244,7 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
             return this;
         }
 
-        ArrayList<Integer> copy = new ArrayList<>();
+        ArrayList<Integer> copy = new ArrayList<>(mCachedTitlePositions.size());
         Collections.copy(copy, mCachedTitlePositions);
 
         HashMap<Integer, String> copyDict = new HashMap<>(mCachedPosTitleDict);
@@ -274,7 +274,7 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
             return this;
         }
 
-        ArrayList<Integer> copy = new ArrayList<>();
+        ArrayList<Integer> copy = new ArrayList<>(mCachedTitlePositions.size());
         Collections.copy(copy, mCachedTitlePositions);
 
         HashMap<Integer, String> copyDict = new HashMap<>(mCachedPosTitleDict);
