@@ -26,40 +26,76 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
 
     TitleCallback mCallback;
 
-    Rect mTitleGapRect;
-    Paint mTitleGapPaint;
-    TextPaint mTitleTextPaint;
+    Rect mTitleRect;
+    Paint mTitleRectBackgroundPaint;
+    TextPaint mTitleRectTextPaint;
+    int mTitleTextLeftOffset;
 
-    Rect mDecorationRect;
-    Paint mDecorationPaint;
+    Rect mNormalDividerRect;
+    Paint mNormalDividerRectBackgroundPaint;
 
     public FloatingTitleDecoration() {
 
-        mTitleGapRect = new Rect();
-        mTitleGapRect.top = 80;
+        mTitleRect = new Rect();
+        mTitleRect.top = 80;
 
-        mTitleGapPaint = new Paint();
-        mTitleGapPaint.setStyle(Paint.Style.FILL);
-        mTitleGapPaint.setAntiAlias(true);
-        mTitleGapPaint.setColor(Color.parseColor("#00ff00"));
+        mTitleRectBackgroundPaint = new Paint();
+        mTitleRectBackgroundPaint.setStyle(Paint.Style.FILL);
+        mTitleRectBackgroundPaint.setAntiAlias(true);
+        mTitleRectBackgroundPaint.setColor(Color.parseColor("#00ff00"));
 
-        mTitleTextPaint = new TextPaint();
-        mTitleTextPaint.setTextSize(20);
-        mTitleTextPaint.setAntiAlias(true);
-        mTitleTextPaint.setColor(Color.parseColor("#666666"));
+        mTitleRectTextPaint = new TextPaint();
+        mTitleRectTextPaint.setTextSize(20);
+        mTitleRectTextPaint.setAntiAlias(true);
+        mTitleRectTextPaint.setColor(Color.parseColor("#666666"));
 
-        mDecorationRect = new Rect();
-        mDecorationRect.top = 5;
+        mNormalDividerRect = new Rect();
+        mNormalDividerRect.top = 5;
 
-        mDecorationPaint = new Paint();
-        mDecorationPaint.setStyle(Paint.Style.FILL);
-        mDecorationPaint.setAntiAlias(true);
-        mDecorationPaint.setColor(Color.parseColor("#ff00ff"));
+        mNormalDividerRectBackgroundPaint = new Paint();
+        mNormalDividerRectBackgroundPaint.setStyle(Paint.Style.FILL);
+        mNormalDividerRectBackgroundPaint.setAntiAlias(true);
+        mNormalDividerRectBackgroundPaint.setColor(Color.parseColor("#ff00ff"));
 
     }
 
     public final FloatingTitleDecoration setCallback(FloatingTitleDecoration.TitleCallback callback) {
         this.mCallback = callback;
+        return this;
+    }
+
+    public FloatingTitleDecoration setTitleBackgroundColor(int color){
+        mTitleRectBackgroundPaint.setColor(color);
+        return this;
+    }
+
+    public FloatingTitleDecoration setTitleHeight(int pixels){
+        mTitleRect.top = pixels;
+        return this;
+    }
+
+    public FloatingTitleDecoration setTitleTextColor(int color){
+        mTitleRectTextPaint.setColor(color);
+        return this;
+    }
+
+    public FloatingTitleDecoration setTitleTextSize(int pixels){
+        mTitleRectTextPaint.setTextSize(pixels);
+        return this;
+    }
+
+    public FloatingTitleDecoration setTitleTextLeftOffset(int pixels){
+        mTitleTextLeftOffset = pixels;
+        return this;
+    }
+
+    public FloatingTitleDecoration setNormalDividerHeight(int pixels){
+        mNormalDividerRect.top = pixels;
+        return this;
+    }
+
+    public FloatingTitleDecoration setNormalDividerBackgroundColor(int color){
+        mNormalDividerRectBackgroundPaint.setColor(color);
         return this;
     }
 
@@ -70,13 +106,13 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
 
         if (isPositionTitle(position)) {
             // 是Title
-            outRect.top = mTitleGapRect.top;
-            outRect.left = mTitleGapRect.left;
-            outRect.right = mTitleGapRect.right;
+            outRect.top = mTitleRect.top;
+            outRect.left = mTitleRect.left;
+            outRect.right = mTitleRect.right;
         } else {
-            outRect.top = mDecorationRect.top;
-            outRect.left = mTitleGapRect.left;
-            outRect.right = mTitleGapRect.right;
+            outRect.top = mNormalDividerRect.top;
+            outRect.left = mNormalDividerRect.left;
+            outRect.right = mNormalDividerRect.right;
         }
     }
 
@@ -86,28 +122,32 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
         for (int i = 0; i < parent.getChildCount(); i++) {
             View mChildView = parent.getChildAt(i);
             int position = parent.getChildLayoutPosition(mChildView);
+            // getTop 此时getTop是View所在绘制空间预留出Decoration大小之后的top 即outerRect.top
+            // 同理 getLeft getRight getBottom
             int leftOffset = 0, rightOffset = 0, topOffset = mChildView.getTop(), bottomOffset = 0;
             if (isPositionTitle(position)) {
-                leftOffset = mChildView.getLeft() + mTitleGapRect.left;
-                rightOffset = mChildView.getRight() - mTitleGapRect.right;
+                leftOffset = mChildView.getLeft();
+                rightOffset = mChildView.getRight();
                 bottomOffset = topOffset;
-                topOffset -= mTitleGapRect.top;
+                topOffset -= mTitleRect.top;
 
-                c.drawRect(leftOffset, topOffset, rightOffset, bottomOffset, mTitleGapPaint);
+                c.drawRect(leftOffset, topOffset, rightOffset, bottomOffset, mTitleRectBackgroundPaint);
 
-                Paint.FontMetrics fm = mTitleTextPaint.getFontMetrics();
-                float textTop = topOffset + mTitleGapRect.top / 2 - (fm.top + fm.bottom) / 2;
+                Paint.FontMetrics fm = mTitleRectTextPaint.getFontMetrics();
+                float textTop = topOffset + mTitleRect.top / 2 - (fm.top + fm.bottom) / 2;
 
                 String mFloatingTitleStr = titleForPosition(position);
                 mFloatingTitleStr = mFloatingTitleStr == null ? "" : mFloatingTitleStr;
-                c.drawText(mFloatingTitleStr, leftOffset, textTop, mTitleTextPaint);
-            } else {
-                leftOffset = mChildView.getLeft() + mDecorationRect.left;
-                rightOffset = mChildView.getRight() - mDecorationRect.right;
-                bottomOffset = topOffset;
-                topOffset -= mDecorationRect.top;
 
-                c.drawRect(leftOffset, topOffset, rightOffset, bottomOffset, mDecorationPaint);
+                leftOffset += mTitleTextLeftOffset;
+                c.drawText(mFloatingTitleStr, leftOffset, textTop, mTitleRectTextPaint);
+            } else {
+                leftOffset = mChildView.getLeft();
+                rightOffset = mChildView.getRight();
+                bottomOffset = topOffset;
+                topOffset -= mNormalDividerRect.top;
+
+                c.drawRect(leftOffset, topOffset, rightOffset, bottomOffset, mNormalDividerRectBackgroundPaint);
             }
 
         }
@@ -120,38 +160,41 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
         if (parent.getChildCount() == 0)
             return;
 
-        int leftOffset = 0, rightOffset = 0, topOffset = 0, bottomOffset = mTitleGapRect.top;
+        int leftOffset = 0, rightOffset = 0, topOffset = 0, bottomOffset = mTitleRect.top;
         for (int i = 0; i < parent.getChildCount(); i++) {
             View mChildView = parent.getChildAt(i);
 
             int position = parent.getChildLayoutPosition(mChildView);
-            leftOffset = mChildView.getLeft() + mTitleGapRect.left;
-            rightOffset = mChildView.getRight() - mTitleGapRect.right;
+            leftOffset = mChildView.getLeft();
+            rightOffset = mChildView.getRight();
             topOffset = 0;
-            bottomOffset = mTitleGapRect.top;
+            bottomOffset = mTitleRect.top;
 
             if (isPositionTitle(position)) {
-                leftOffset = mChildView.getLeft() + mTitleGapRect.left;
-                rightOffset = mChildView.getRight() - mTitleGapRect.right;
-                int childLayerTopOffset = mChildView.getTop() - mTitleGapRect.top;
+                leftOffset = mChildView.getLeft();
+                rightOffset = mChildView.getRight();
+                int childLayerTopOffset = mChildView.getTop() - mTitleRect.top;
                 if (childLayerTopOffset > 0) {
                     bottomOffset = Math.min(bottomOffset, childLayerTopOffset);
-                    topOffset = bottomOffset - mTitleGapRect.top;
+                    topOffset = bottomOffset - mTitleRect.top;
                 }
 
                 break;
             }
         }
 
-        c.drawRect(leftOffset, topOffset, rightOffset, bottomOffset, mTitleGapPaint);
+        c.drawRect(leftOffset, topOffset, rightOffset, bottomOffset, mTitleRectBackgroundPaint);
+
+
+        Paint.FontMetrics fm = mTitleRectTextPaint.getFontMetrics();
+        float textTop = topOffset + mTitleRect.top / 2 - (fm.top + fm.bottom) / 2;
 
         int mFirstTitlePosition = parent.getChildLayoutPosition(parent.getChildAt(0));
         String mFloatingTitleStr = getLatestTitleForPosition(mFirstTitlePosition);
-        Paint.FontMetrics fm = mTitleTextPaint.getFontMetrics();
-        float textTop = topOffset + mTitleGapRect.top / 2 - (fm.top + fm.bottom) / 2;
-
         mFloatingTitleStr = mFloatingTitleStr == null ? "" : mFloatingTitleStr;
-        c.drawText(mFloatingTitleStr, leftOffset, textTop, mTitleTextPaint);
+
+        leftOffset += mTitleTextLeftOffset;
+        c.drawText(mFloatingTitleStr, leftOffset, textTop, mTitleRectTextPaint);
 
     }
 
