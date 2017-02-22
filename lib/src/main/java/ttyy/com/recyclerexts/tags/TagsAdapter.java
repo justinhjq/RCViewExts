@@ -197,6 +197,14 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
             }
 
             @Override
+            public LinkedList<Integer> getSelectedPositions() {
+                LinkedList<Integer> is = new LinkedList<>();
+                if(modeItem.position != -1)
+                    is.add(modeItem.position);
+                return is;
+            }
+
+            @Override
             public void clearChoiceCache() {
                 super.clearChoiceCache();
             }
@@ -261,6 +269,10 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
                 modeItem.isChecked = !modeItem.isChecked;
 
+                if(!modeItem.isChecked){
+                    mSelectedItemsDict.remove(position);
+                }
+
             } else {
 
                 modeItem = new ModeItem();
@@ -269,6 +281,7 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
                 mSelectedItemsDict.put(position, modeItem);
 
             }
+
 
             if (itemView != null) {
                 if (itemView instanceof Checkable) {
