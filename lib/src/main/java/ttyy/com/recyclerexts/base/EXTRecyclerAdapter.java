@@ -6,6 +6,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,6 +70,12 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         return datas;
     }
 
+    public List<D> getDatasCopy(){
+        if(datas == null)
+            return null;
+        return new ArrayList<>(datas);
+    }
+
     public EXTRecyclerAdapter addHeaderView(View itemView) {
         headerViewPool.addView(itemView, headerViewPool.getCount());
         return this;
@@ -119,19 +126,26 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
 
     public boolean removeDataForItemPosition(int position) {
         position -= getHeaderViewsCount();
-        return removeDataForPosition(position);
+        return removeDataForPosition(position, true);
     }
 
-    public boolean removeDataForPosition(int position) {
+    public boolean removeForItemPositionWithoutNotify(int position){
+        position -= getHeaderViewsCount();
+        return removeDataForPosition(position, false);
+    }
+
+    private boolean removeDataForPosition(int position, boolean notify) {
         if (datas != null) {
             if (position >= 0 && position < datas.size()) {
                 datas.remove(position);
-                notifyItemRemoved(position + getHeaderViewsCount());
+                if(notify)
+                    notifyItemRemoved(position + getHeaderViewsCount());
                 return true;
             }
         }
         return false;
     }
+
 
     @Override
     public int getItemViewType(int position) {
