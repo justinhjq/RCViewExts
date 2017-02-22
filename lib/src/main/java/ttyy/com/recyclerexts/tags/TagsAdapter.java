@@ -261,13 +261,14 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
             }
             mSelectedItemsDict.clear();
+            mAdapter.notifyDataSetChanged();
         }
 
         public void setItemChecked(int position, View itemView, boolean value) {
             ModeItem modeItem = mSelectedItemsDict.get(position);
             if (modeItem != null) {
 
-                modeItem.isChecked = !modeItem.isChecked;
+                modeItem.isChecked = value;
 
                 if(!modeItem.isChecked){
                     mSelectedItemsDict.remove(position);
