@@ -77,9 +77,9 @@ public class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
          * 每次使用需要把上一次缓存的数据清空
          */
         this.mChoiceMode.clearChoiceCache();
-
         this.mChoiceMode = mode == null ? Mode.None : mode;
         this.mChoiceMode.mAdapter = this;
+        this.mChoiceMode.mSelectedItemsDict.clear();
     }
 
     public Mode getMode() {
