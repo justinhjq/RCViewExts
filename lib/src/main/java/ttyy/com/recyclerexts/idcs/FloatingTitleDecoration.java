@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -102,8 +103,8 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         super.getItemOffsets(outRect, view, parent, state);
-        int position = parent.getChildLayoutPosition(view);
-
+        // getLayout 没有 getAdapter精准 相对于Item在数据上的Index
+        int position = parent.getChildAdapterPosition(view);
         if (isPositionTitle(position)) {
             // 是Title
             outRect.top = mTitleRect.top;
@@ -121,7 +122,7 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
         super.onDraw(c, parent, state);
         for (int i = 0; i < parent.getChildCount(); i++) {
             View mChildView = parent.getChildAt(i);
-            int position = parent.getChildLayoutPosition(mChildView);
+            int position = parent.getChildAdapterPosition(mChildView);
             // getTop 此时getTop是View所在绘制空间预留出Decoration大小之后的top 即outerRect.top
             // 同理 getLeft getRight getBottom
             int leftOffset = 0, rightOffset = 0, topOffset = mChildView.getTop(), bottomOffset = 0;
@@ -163,8 +164,7 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
         int leftOffset = 0, rightOffset = 0, topOffset = 0, bottomOffset = mTitleRect.top;
         for (int i = 0; i < parent.getChildCount(); i++) {
             View mChildView = parent.getChildAt(i);
-
-            int position = parent.getChildLayoutPosition(mChildView);
+            int position = parent.getChildAdapterPosition(mChildView);
             leftOffset = mChildView.getLeft();
             rightOffset = mChildView.getRight();
             topOffset = 0;
@@ -189,7 +189,7 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
         Paint.FontMetrics fm = mTitleRectTextPaint.getFontMetrics();
         float textTop = topOffset + mTitleRect.top / 2 - (fm.top + fm.bottom) / 2;
 
-        int mFirstTitlePosition = parent.getChildLayoutPosition(parent.getChildAt(0));
+        int mFirstTitlePosition = parent.getChildAdapterPosition(parent.getChildAt(0));
         String mFloatingTitleStr = getLatestTitleForPosition(mFirstTitlePosition);
         mFloatingTitleStr = mFloatingTitleStr == null ? "" : mFloatingTitleStr;
 
@@ -201,32 +201,100 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
     protected boolean isPositionTitle(int position) {
         if (mCallback != null) {
             // 缓存是否有没有
-            if (mTitlePositions.contains(position)) {
+            if (mTitleDataUseCache
+                    && mCachedTitlePositions.contains(position)) {
                 return true;
             }
 
             if (mCallback.isPositionTitle(position)) {
-                mTitlePositions.add(position);
+                if(mTitleDataUseCache)
+                    mCachedTitlePositions.add(position);
                 return true;
             }
         }
         return false;
     }
 
-    private HashMap<Integer, String> mPosTitleDict = new HashMap<>();
-    private ArrayList<Integer> mTitlePositions = new ArrayList<>();
+    private HashMap<Integer, String> mCachedPosTitleDict = new HashMap<>();
+    private ArrayList<Integer> mCachedTitlePositions = new ArrayList<>();
+    private boolean mTitleDataUseCache = true;
 
     protected String titleForPosition(int position) {
         if (mCallback != null) {
 
-            String title = mPosTitleDict.get(position);
-            if (TextUtils.isEmpty(title)) {
-                title = mCallback.titleForPosition(position);
-                mPosTitleDict.put(position, title);
+            String title = mCachedPosTitleDict.get(position);
+            if (mTitleDataUseCache
+                    && TextUtils.isEmpty(title)) {
+                mCachedPosTitleDict.put(position, title);
             }
             return title;
         }
         return null;
+    }
+
+    public FloatingTitleDecoration setTitleDataUseCache(boolean value){
+        this.mTitleDataUseCache = value;
+        return this;
+    }
+
+    public FloatingTitleDecoration updateCacheWhenInsertItem(int position){
+        if(!mTitleDataUseCache
+                || mCachedPosTitleDict.size() == 0
+                || mCachedTitlePositions.size() == 0){
+            return this;
+        }
+
+        ArrayList<Integer> copy = new ArrayList<>();
+        Collections.copy(copy, mCachedTitlePositions);
+
+        HashMap<Integer, String> copyDict = new HashMap<>(mCachedPosTitleDict);
+
+        mCachedTitlePositions.clear();
+        mCachedPosTitleDict.clear();
+
+        for(int tmp : copy){
+            if(tmp < position){
+
+            }else {
+                String title = copyDict.get(tmp);
+                tmp += 1;
+                mCachedPosTitleDict.put(tmp, title);
+
+            }
+            mCachedTitlePositions.add(tmp);
+        }
+
+        return this;
+    }
+
+    public FloatingTitleDecoration updateCacheWhenRemoveItem(int position){
+        if(!mTitleDataUseCache
+                || mCachedPosTitleDict.size() == 0
+                || mCachedTitlePositions.size() == 0){
+            return this;
+        }
+
+        ArrayList<Integer> copy = new ArrayList<>();
+        Collections.copy(copy, mCachedTitlePositions);
+
+        HashMap<Integer, String> copyDict = new HashMap<>(mCachedPosTitleDict);
+
+        mCachedTitlePositions.clear();
+        mCachedPosTitleDict.clear();
+
+        for(int tmp : copy){
+            if(tmp < position){
+
+            }else {
+                String title = copyDict.get(tmp);
+                tmp -= 1;
+                mCachedPosTitleDict.put(tmp, title);
+
+            }
+            mCachedTitlePositions.add(tmp);
+        }
+
+        return this;
     }
 
     private String getLatestTitleForPosition(int position){
@@ -244,8 +312,8 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
      * 数据变动时，需要清空缓存
      */
     public final void clearCaches() {
-        mPosTitleDict.clear();
-        mTitlePositions.clear();
+        mCachedPosTitleDict.clear();
+        mCachedTitlePositions.clear();
     }
 
     public interface TitleCallback {
