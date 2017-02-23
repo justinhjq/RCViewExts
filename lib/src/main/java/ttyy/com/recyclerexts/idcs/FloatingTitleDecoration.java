@@ -246,6 +246,12 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
             return this;
         }
 
+        // 标题包含 移除该标题缓存
+        if(mCachedTitlePositions.contains(position)){
+            mCachedTitlePositions.remove(Integer.valueOf(position));
+            mCachedPosTitleDict.remove(position);
+        }
+
         // 初始化ArrayList的容纳能力
         ArrayList<Integer> copy = new ArrayList<>(Arrays.asList(new Integer[mCachedTitlePositions.size()]));
         Collections.copy(copy, mCachedTitlePositions);
@@ -277,6 +283,13 @@ public class FloatingTitleDecoration extends RecyclerView.ItemDecoration {
             return this;
         }
 
+        // 标题包含 移除该标题缓存
+        if(mCachedTitlePositions.contains(position)){
+            mCachedTitlePositions.remove(Integer.valueOf(position));
+            mCachedPosTitleDict.remove(position);
+        }
+
+        // 初始化ArrayList的容纳能力
         ArrayList<Integer> copy = new ArrayList<>(Arrays.asList(new Integer[mCachedTitlePositions.size()]));
         Collections.copy(copy, mCachedTitlePositions);
 
