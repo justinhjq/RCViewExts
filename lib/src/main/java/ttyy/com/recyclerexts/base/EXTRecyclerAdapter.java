@@ -6,7 +6,6 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,20 +100,6 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         return getDataForPosition(position);
     }
 
-    public EXTRecyclerAdapter addDataForPosition(D d, int pos) {
-        if (datas == null) {
-            datas = new ArrayList<>();
-        }
-        datas.add(pos, d);
-        notifyItemInserted(pos + getHeaderViewsCount());
-        return this;
-    }
-
-    public EXTRecyclerAdapter addDataForItemPosition(D d, int pos) {
-        addDataForPosition(d, pos - getHeaderViewsCount());
-        return this;
-    }
-
     public D getDataForPosition(int position) {
         if (datas != null) {
             if (position >= 0 && position < datas.size()) {
@@ -124,17 +109,37 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         return null;
     }
 
+    public EXTRecyclerAdapter addDataForPosition(D d, int pos, boolean notify) {
+        if (datas == null) {
+            datas = new ArrayList<>();
+        }
+        datas.add(pos, d);
+        if(notify)
+            notifyItemInserted(pos + getHeaderViewsCount());
+        return this;
+    }
+
+    public EXTRecyclerAdapter addDataForItemPosition(D d, int pos) {
+        addDataForPosition(d, pos - getHeaderViewsCount(), true);
+        return this;
+    }
+
+    public EXTRecyclerAdapter addDataForItemPositionWithoutNotify(D d, int pos) {
+        addDataForPosition(d, pos - getHeaderViewsCount(), false);
+        return this;
+    }
+
     public boolean removeDataForItemPosition(int position) {
         position -= getHeaderViewsCount();
         return removeDataForPosition(position, true);
     }
 
-    public boolean removeForItemPositionWithoutNotify(int position){
+    public boolean removeDataForItemPositionWithoutNotify(int position){
         position -= getHeaderViewsCount();
         return removeDataForPosition(position, false);
     }
 
-    private boolean removeDataForPosition(int position, boolean notify) {
+    public boolean removeDataForPosition(int position, boolean notify) {
         if (datas != null) {
             if (position >= 0 && position < datas.size()) {
                 datas.remove(position);
@@ -145,7 +150,6 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         }
         return false;
     }
-
 
     @Override
     public int getItemViewType(int position) {
@@ -190,11 +194,19 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
 
     public abstract void onBindViewHolder(EXTViewHolder holder, int position, D data);
 
+    /**
+     * 获取Recyclerview item数量
+     * @return
+     */
     @Override
     public int getItemCount() {
         return getDatasCount() + getHeaderViewsCount() + getFooterViewsCount();
     }
 
+    /**
+     * 获取设置的数据集合的大小
+     * @return
+     */
     public int getDatasCount() {
         return datas == null ? 0 : datas.size();
     }
