@@ -38,7 +38,7 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
      * 内置
      * 保证无论何时设置OnItemClickListener时，都会有效
      */
-    protected OnItemClickListener listener = new OnItemClickListener() {
+    protected OnItemClickListener _dftClickListener = new OnItemClickListener() {
         @Override
         public void onItemClicked(View itemView, int position) {
             if (mOnItemClickListener != null) {
@@ -47,6 +47,21 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         }
     };
     protected OnItemClickListener mOnItemClickListener;
+
+    /**
+     * 内置
+     * 保证无论何时设置O你ItemLongClickListen时，都会有效
+     */
+    protected OnItemLongClickListener _dftLongClickListener = new OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClicked(View itemView, int position) {
+            if (mOnItemLongClickListener != null) {
+                return mOnItemLongClickListener.onItemLongClicked(itemView, position);
+            }
+            return false;
+        }
+    };
+    protected OnItemLongClickListener mOnItemLongClickListener;
 
     public EXTRecyclerAdapter(int resId) {
         mMultiType = new MultiType<D>() {
@@ -185,9 +200,9 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
 
     @Override
     public final void onBindViewHolder(EXTViewHolder holder, int position) {
-        if (listener != null
-                && holder.getOnItemClickListener() != listener) {
-            holder.setOnItemClickListener(listener);
+        if (_dftClickListener != null
+                && holder.getOnItemClickListener() != _dftClickListener) {
+            holder.setOnItemClickListener(_dftClickListener);
         }
         onBindViewHolder(holder, position, getDataForItemPosition(position));
     }
@@ -278,8 +293,16 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
         this.mOnItemClickListener = listener;
     }
 
+    public void setOnItemLongClickListener(OnItemLongClickListener listener){
+        this.mOnItemLongClickListener = listener;
+    }
+
     public interface OnItemClickListener {
         void onItemClicked(View itemView, int position);
+    }
+
+    public interface OnItemLongClickListener{
+        boolean onItemLongClicked(View itemView, int position);
     }
 
     private static class ExtViewPool {

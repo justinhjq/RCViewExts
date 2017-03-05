@@ -81,7 +81,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
         mChoiceMode.mAdapter = this;
 
-        listener = new OnItemClickListener() {
+        _dftClickListener = new OnItemClickListener() {
             @Override
             public void onItemClicked(View itemView, int position) {
                 // 不管有没有设置Item点击事件 选择模式都应该响应每个Item的点击事件

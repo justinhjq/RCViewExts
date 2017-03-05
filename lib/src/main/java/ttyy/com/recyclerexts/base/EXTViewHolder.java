@@ -24,6 +24,7 @@ public class EXTViewHolder extends RecyclerView.ViewHolder{
     protected int mLayoutId;
     private SparseArray<View> mHolderViews;
     protected EXTRecyclerAdapter.OnItemClickListener mOnItemClickListener;
+    protected EXTRecyclerAdapter.OnItemLongClickListener onItemLongClickListener;
 
     private EXTViewHolder(View itemView, int layoutId) {
         super(itemView);
@@ -36,6 +37,15 @@ public class EXTViewHolder extends RecyclerView.ViewHolder{
                 if(mOnItemClickListener != null){
                     mOnItemClickListener.onItemClicked(v, getLayoutPosition());
                 }
+            }
+        });
+        this.mItemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(onItemLongClickListener != null){
+                    return onItemLongClickListener.onItemLongClicked(v, getLayoutPosition());
+                }
+                return false;
             }
         });
     }
@@ -101,6 +111,10 @@ public class EXTViewHolder extends RecyclerView.ViewHolder{
 
     public void setOnItemClickListener(EXTRecyclerAdapter.OnItemClickListener listener){
         this.mOnItemClickListener = listener;
+    }
+
+    public void setOnItemLongClickListener(EXTRecyclerAdapter.OnItemLongClickListener listener){
+        this.onItemLongClickListener = listener;
     }
 
     public EXTRecyclerAdapter.OnItemClickListener getOnItemClickListener(){
