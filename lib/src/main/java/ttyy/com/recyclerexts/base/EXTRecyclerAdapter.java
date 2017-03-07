@@ -204,6 +204,12 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
                 && holder.getOnItemClickListener() != _dftClickListener) {
             holder.setOnItemClickListener(_dftClickListener);
         }
+
+        if(_dftLongClickListener != null
+                && holder.getOnItemLongClickListener() != _dftLongClickListener){
+            holder.setOnItemLongClickListener(_dftLongClickListener);
+        }
+
         onBindViewHolder(holder, position, getDataForItemPosition(position));
     }
 
