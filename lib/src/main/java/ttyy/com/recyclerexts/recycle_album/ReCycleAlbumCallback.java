@@ -1,4 +1,4 @@
-package ttyy.com.recyclerexts.cycle_album;
+package ttyy.com.recyclerexts.recycle_album;
 
 import android.graphics.Canvas;
 import android.support.v7.widget.RecyclerView;
@@ -12,24 +12,24 @@ import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 /**
  * Author: Administrator
  * Date  : 2016/12/27 13:55
- * Name  : CycleAlbumCallback
+ * Name  : ReCycleAlbumCallback
  * Intro : 循环相册 touch事件处理
  * Modification  History:
  * Date          Author        	 Version          Description
  * ----------------------------------------------------------
  * 2016/12/27    Administrator   1.0              1.0
  */
-public class CycleAlbumCallback extends ItemTouchHelper.SimpleCallback {
+public class ReCycleAlbumCallback extends ItemTouchHelper.SimpleCallback {
 
     EXTRecyclerAdapter mAdapter;
-    CycleAlbumConfig mConfig = CycleAlbumConfig.getInstance();
+    ReCycleAlbumConfig mConfig = ReCycleAlbumConfig.getInstance();
 
-    public CycleAlbumCallback(EXTRecyclerAdapter mAdapter) {
+    public ReCycleAlbumCallback(EXTRecyclerAdapter mAdapter) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.UP | ItemTouchHelper.DOWN);
         this.mAdapter = mAdapter;
     }
 
-    private CycleAlbumCallback(int dragDirs, int swipeDirs) {
+    private ReCycleAlbumCallback(int dragDirs, int swipeDirs) {
         super(dragDirs, swipeDirs);
     }
 

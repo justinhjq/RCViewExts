@@ -11,8 +11,8 @@ import java.util.Collections;
 
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
-import ttyy.com.recyclerexts.cycle_album.CycleAlbumCallback;
-import ttyy.com.recyclerexts.cycle_album.CycleAlbumLayoutManager;
+import ttyy.com.recyclerexts.recycle_album.ReCycleAlbumCallback;
+import ttyy.com.recyclerexts.recycle_album.ReCycleAlbumLayoutManager;
 
 /**
  * Author: Administrator
@@ -35,7 +35,7 @@ public class CycleAlbumActivity extends AppCompatActivity {
 
         recycler_view = (RecyclerView) findViewById(R.id.recycler_view);
 
-        recycler_view.setLayoutManager(new CycleAlbumLayoutManager());
+        recycler_view.setLayoutManager(new ReCycleAlbumLayoutManager());
 
         EXTRecyclerAdapter<String> adapter = new EXTRecyclerAdapter<String>(R.layout.item_circle_album_view) {
             @Override
@@ -50,7 +50,7 @@ public class CycleAlbumActivity extends AppCompatActivity {
 
         recycler_view.setAdapter(adapter);
 
-        ItemTouchHelper helper = new ItemTouchHelper(new CycleAlbumCallback(adapter));
+        ItemTouchHelper helper = new ItemTouchHelper(new ReCycleAlbumCallback(adapter));
         helper.attachToRecyclerView(recycler_view);
 
     }
