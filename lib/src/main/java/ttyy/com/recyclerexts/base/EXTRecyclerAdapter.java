@@ -25,8 +25,8 @@ import java.util.List;
  */
 public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTViewHolder> {
 
-    private static final int HEADER = -1000;
-    private static final int FOOTER = -1001;
+    protected static final int HEADER = -1000;
+    protected static final int FOOTER = -1001;
 
     protected List<D> datas;
     protected MultiType<D> mMultiType;
@@ -185,21 +185,16 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
 
     @Override
     public EXTViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        EXTViewHolder holder = null;
         if (viewType == HEADER) {
-            EXTViewHolder holder = EXTViewHolder.from(headerViewPool.getCurrentExtView());
-            return holder;
+            holder = EXTViewHolder.from(headerViewPool.getCurrentExtView());
         } else if (viewType == FOOTER) {
-            EXTViewHolder holder = EXTViewHolder.from(footerViewPool.getCurrentExtView());
-            return holder;
+            holder = EXTViewHolder.from(footerViewPool.getCurrentExtView());
         } else {
             int layoutId = mMultiType.getLayoutIdForType(viewType);
-            EXTViewHolder holder = EXTViewHolder.from(parent, layoutId);
-            return holder;
+            holder = EXTViewHolder.from(parent, layoutId);
         }
-    }
 
-    @Override
-    public final void onBindViewHolder(EXTViewHolder holder, int position) {
         if (_dftClickListener != null
                 && holder.getOnItemClickListener() != _dftClickListener) {
             holder.setOnItemClickListener(_dftClickListener);
@@ -209,6 +204,26 @@ public abstract class EXTRecyclerAdapter<D> extends RecyclerView.Adapter<EXTView
                 && holder.getOnItemLongClickListener() != _dftLongClickListener){
             holder.setOnItemLongClickListener(_dftLongClickListener);
         }
+
+        int itemListenerProxyViewId = getItemListenerProxyViewId(viewType);
+        if(itemListenerProxyViewId != -1){
+            holder.setItemListenerProxyView(itemListenerProxyViewId);
+        }
+
+        return holder;
+    }
+
+    /**
+     * 转移Item ContentView点击事件 到指定的代理View上
+     * @param viewType
+     * @return
+     */
+    public int getItemListenerProxyViewId(int viewType){
+        return -1;
+    }
+
+    @Override
+    public final void onBindViewHolder(EXTViewHolder holder, int position) {
 
         onBindViewHolder(holder, position, getDataForItemPosition(position));
     }

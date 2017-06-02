@@ -1,6 +1,7 @@
 package ttyy.com.recyclerexts.base;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,20 +27,25 @@ public class EXTViewHolder extends RecyclerView.ViewHolder{
     protected EXTRecyclerAdapter.OnItemClickListener mOnItemClickListener;
     protected EXTRecyclerAdapter.OnItemLongClickListener mOnItemLongClickListener;
 
+    private View.OnClickListener _dftOnClickListener;
+    private View.OnLongClickListener _dftOnLongClickListener;
+
     private EXTViewHolder(View itemView, int layoutId) {
         super(itemView);
         this.mItemView = itemView;
         this.mLayoutId = layoutId;
         this.mHolderViews = new SparseArray<>();
-        this.mItemView.setOnClickListener(new View.OnClickListener() {
+
+        this._dftOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(mOnItemClickListener != null){
                     mOnItemClickListener.onItemClicked(v, getLayoutPosition());
                 }
             }
-        });
-        this.mItemView.setOnLongClickListener(new View.OnLongClickListener() {
+        };
+
+        this._dftOnLongClickListener = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 if(mOnItemLongClickListener != null){
@@ -47,7 +53,10 @@ public class EXTViewHolder extends RecyclerView.ViewHolder{
                 }
                 return false;
             }
-        });
+        };
+
+        this.mItemView.setOnClickListener(_dftOnClickListener);
+        this.mItemView.setOnLongClickListener(_dftOnLongClickListener);
     }
 
     public static EXTViewHolder from(ViewGroup parent, int layoutId){
@@ -115,6 +124,23 @@ public class EXTViewHolder extends RecyclerView.ViewHolder{
 
     public void setOnItemLongClickListener(EXTRecyclerAdapter.OnItemLongClickListener listener){
         this.mOnItemLongClickListener = listener;
+    }
+
+    public void setItemListenerProxyView(int itemId){
+
+        View proxyItemView = this.mItemView.findViewById(itemId);
+
+        if(proxyItemView != null){
+            proxyItemView.setOnClickListener(_dftOnClickListener);
+            proxyItemView.setOnLongClickListener(_dftOnLongClickListener);
+
+            this.mItemView.setOnClickListener(null);
+            this.mItemView.setOnLongClickListener(null);
+        }else {
+
+            Log.w("EXTViewHolder", "ProxyItemView Id Not Exists!");
+        }
+
     }
 
     public EXTRecyclerAdapter.OnItemClickListener getOnItemClickListener(){

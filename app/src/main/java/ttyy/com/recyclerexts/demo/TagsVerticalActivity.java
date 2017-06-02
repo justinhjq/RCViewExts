@@ -3,6 +3,8 @@ package ttyy.com.recyclerexts.demo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +31,19 @@ public class TagsVerticalActivity extends AppCompatActivity {
             public void onBindViewHolder(EXTViewHolder holder, int position, String data) {
                 holder.setText(R.id.text, data);
             }
+
+            @Override
+            public int getItemListenerProxyViewId(int viewType) {
+                return R.id.tv_proxy;
+            }
         };
+
+        adapter.setOnItemClickListener(new EXTRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(View itemView, int position) {
+                Log.i("Test", "OnItemClicked "+position);
+            }
+        });
 
         ArrayList<String> datas = new ArrayList<>();
         Collections.addAll(datas, getResources().getStringArray(R.array.menu));
