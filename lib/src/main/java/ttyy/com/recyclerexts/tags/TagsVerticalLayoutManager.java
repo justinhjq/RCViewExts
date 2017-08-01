@@ -150,8 +150,15 @@ public class TagsVerticalLayoutManager extends RecyclerView.LayoutManager {
 
                 layoutDecorated(item, leftOffset, topOffset, leftOffset + getDecoratedMeasurementHorizontal(item), topOffset + getDecoratedMeasurementVertical(item));
                 //保存Rect供逆序layout用
-                Rect rect = new Rect(leftOffset, topOffset + mVerticalOffset, leftOffset + getDecoratedMeasurementHorizontal(item), topOffset + getDecoratedMeasurementVertical(item) + mVerticalOffset);
-                mItemRects.put(i, rect);
+                Rect rect = mItemRects.get(i);
+                if(rect == null){
+                    rect = new Rect();
+                    rect.left = leftOffset;
+                    rect.right = leftOffset + getDecoratedMeasurementHorizontal(item);
+                    mItemRects.put(i, rect);
+                }
+                rect.top = topOffset + mVerticalOffset;
+                rect.bottom = topOffset + getDecoratedMeasurementVertical(item) + mVerticalOffset;
 
                 leftOffset += getDecoratedMeasurementHorizontal(item);
                 mMaxLineHeight = Math.max(mMaxLineHeight, getDecoratedMeasurementVertical(item));
