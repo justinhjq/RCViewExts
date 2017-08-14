@@ -122,6 +122,30 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
         return mChoiceMode;
     }
 
+     /**
+     * 全选
+     */
+    public void chooseAll(){
+        if(mChoiceMode != Mode.MultiChoice){
+            return;
+        }
+
+        for(int i = 0 ; i < getItemCount(); i++){
+            ModeItem modeItem = new ModeItem();
+            modeItem.position = i;
+            modeItem.isChecked = true;
+            mChoiceMode.mSelectedItemsDict.put(i, modeItem);
+        }
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 清空选中状态
+     */
+    public void clearChooseStatus(){
+        clearChoiceCache();
+    }
+    
     /**
      * 清空缓存
      */
