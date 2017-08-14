@@ -64,8 +64,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
     }
 
     private void setChecked(EXTViewHolder holder, int position){
-        if (mChoiceMode != Mode.None
-                && holder.getItemView() instanceof Checkable) {
+        if (holder.getItemView() instanceof Checkable) {
             boolean isChecked = isItemChecked(position);
             if (isChecked) {
                 ((Checkable) holder.getItemView()).setChecked(true);
@@ -122,7 +121,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
         return mChoiceMode;
     }
 
-     /**
+    /**
      * 全选
      */
     public void chooseAll(){
@@ -145,7 +144,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
     public void clearChooseStatus(){
         clearChoiceCache();
     }
-    
+
     /**
      * 清空缓存
      */
@@ -333,11 +332,6 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
             @Override
             protected void clearChoiceCache() {
-                for (Map.Entry<Integer, ModeItem> entry : mSelectedItemsDict.entrySet()) {
-
-                    entry.getValue().isChecked = false;
-
-                }
                 mSelectedItemsDict.clear();
                 mAdapter.notifyDataSetChanged();
             }
