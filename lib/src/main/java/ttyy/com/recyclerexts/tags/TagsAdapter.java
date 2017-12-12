@@ -5,7 +5,6 @@ import android.widget.Checkable;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 import ttyy.com.recyclerexts.base.EXTRecyclerAdapter;
 import ttyy.com.recyclerexts.base.EXTViewHolder;
@@ -24,35 +23,35 @@ import ttyy.com.recyclerexts.base.MultiType;
  */
 public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
-    Mode mChoiceMode = Mode.None;
-
-    int mCheckMode = Mode.BEFORE_BIND_DATA;
+    ModeImpl mChoiceModeImpl;
 
     public TagsAdapter(int resId) {
         super(resId);
+        mChoiceModeImpl = ModeImpl.createModeImpl(Mode.None, this);
         updateDefaultListener();
     }
 
     public TagsAdapter(MultiType<D> type) {
         super(type);
+        mChoiceModeImpl = ModeImpl.createModeImpl(Mode.None, this);
         updateDefaultListener();
     }
 
     @Override
     public final void onBindViewHolder(EXTViewHolder holder, int position, D data) {
 
-        switch (mChoiceMode.getCheckMode()){
-            case Mode.AFTER_BIND_DATA:
+        switch (mChoiceModeImpl.getCheckTime()) {
+            case AfterBind:
                 // 绑定数据之后 进行checked item设置
                 onBindTagViewHolder(holder, position, data);
                 setChecked(holder, position);
                 break;
-            case Mode.BEFORE_BIND_DATA:
+            case BeforeBind:
                 // 绑定数据之前 进行checked item设置
                 setChecked(holder, position);
                 onBindTagViewHolder(holder, position, data);
                 break;
-            case Mode.NONE_CHECK:
+            case None:
                 // 没有检查模式 直接绑定数据
                 onBindTagViewHolder(holder, position, data);
                 break;
@@ -63,7 +62,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
     }
 
-    private void setChecked(EXTViewHolder holder, int position){
+    private void setChecked(EXTViewHolder holder, int position) {
         if (holder.getItemView() instanceof Checkable) {
             boolean isChecked = isItemChecked(position);
             if (isChecked) {
@@ -78,13 +77,11 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
     protected void updateDefaultListener() {
 
-        mChoiceMode.mAdapter = this;
-
         _dftClickListener = new OnItemClickListener() {
             @Override
             public void onItemClicked(View itemView, int position) {
                 // 不管有没有设置Item点击事件 选择模式都应该响应每个Item的点击事件
-                mChoiceMode.onTagItemClicked(itemView, position);
+                mChoiceModeImpl.onTagItemClicked(itemView, position);
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClicked(itemView, position);
                 }
@@ -102,38 +99,35 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
          * 枚举 是单例模式
          * 每次使用需要把上一次缓存的数据清空
          */
-        this.mChoiceMode.clearChoiceCache();
-        this.mChoiceMode = mode == null ? Mode.None : mode;
-        this.mChoiceMode.mAdapter = this;
-        // 清空上一次的缓存 但是不更新RecyclerView
-        this.mChoiceMode.mSelectedItemsDict.clear();
-        // 设置检查时机
-        this.mChoiceMode.setCheckMode(mCheckMode);
+        this.mChoiceModeImpl.clearChoiceCache();
+
+        CheckTime mCachedCheckTime = mChoiceModeImpl.getCheckTime();
+        this.mChoiceModeImpl = ModeImpl.createModeImpl(mode, this);
+        this.mChoiceModeImpl.setCheckTime(mCachedCheckTime);
     }
 
-    public TagsAdapter setCheckTimeMode(int modeValue){
-        mCheckMode = modeValue;
-        mChoiceMode.setCheckMode(modeValue);
+    public TagsAdapter setCheckTime(CheckTime modeValue) {
+        mChoiceModeImpl.setCheckTime(modeValue);
         return this;
     }
 
     public Mode getMode() {
-        return mChoiceMode;
+        return mChoiceModeImpl.getChoiceMode();
     }
 
     /**
      * 全选
      */
-    public void chooseAll(){
-        if(mChoiceMode != Mode.MultiChoice){
+    public void chooseAll() {
+        if (mChoiceModeImpl.getChoiceMode() != Mode.MultiChoice) {
             return;
         }
 
-        for(int i = 0 ; i < getItemCount(); i++){
+        for (int i = 0; i < getItemCount(); i++) {
             ModeItem modeItem = new ModeItem();
             modeItem.position = i;
             modeItem.isChecked = true;
-            mChoiceMode.mSelectedItemsDict.put(i, modeItem);
+            mChoiceModeImpl.mSelectedItemsDict.put(i, modeItem);
         }
         notifyDataSetChanged();
     }
@@ -141,7 +135,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
     /**
      * 清空选中状态
      */
-    public void clearChooseStatus(){
+    public void clearChooseStatus() {
         clearChoiceCache();
     }
 
@@ -149,18 +143,18 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
      * 清空缓存
      */
     public void clearChoiceCache() {
-        this.mChoiceMode.clearChoiceCache();
+        this.mChoiceModeImpl.clearChoiceCache();
     }
 
     public boolean isItemChecked(int position) {
-        return mChoiceMode.isItemChecked(position);
+        return mChoiceModeImpl.isItemChecked(position);
     }
 
     public void setItemChecked(int position, boolean value) {
-        if (mChoiceMode == Mode.None) {
+        if (mChoiceModeImpl.getChoiceMode() == Mode.None) {
             return;
         } else {
-            mChoiceMode.setItemChecked(position, null, value);
+            mChoiceModeImpl.setItemChecked(position, null, value);
         }
     }
 
@@ -183,13 +177,13 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
      * @return
      */
     public LinkedList<Integer> getSelectedPositions() {
-        return mChoiceMode.getSelectedPositions();
+        return mChoiceModeImpl.getSelectedPositions();
     }
 
     /**
      * choice setChecked 时机
      */
-    public enum CheckMode{
+    public enum CheckTime {
         /**
          * bind数据之后
          */
@@ -208,188 +202,249 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
      * 选中模式
      */
     public enum Mode {
-        /**
-         * 单选模式
-         */
-        SingleChoice() {
+        SingleChoice,
+        MultiChoice,
+        None;
+    }
 
-            ModeItem modeItem = new ModeItem() {
-                {
-                    position = -1;
-                    isChecked = false;
+    private static class ModeItem {
+
+        int position;
+        boolean isChecked;
+
+    }
+
+    private static abstract class ModeImpl {
+
+        static ModeImpl createModeImpl(Mode mode, TagsAdapter adapter) {
+            if (mode == null) {
+
+                return createNoneChoice(adapter);
+            }
+            switch (mode) {
+                case None:
+
+                    return createNoneChoice(adapter);
+                case MultiChoice:
+
+                    return createModeMultiChoice(adapter);
+                case SingleChoice:
+
+                    return createModeSingleChoice(adapter);
+            }
+
+            return createNoneChoice(adapter);
+        }
+
+        static ModeImpl createModeSingleChoice(TagsAdapter adapter) {
+            ModeImpl SingleChoice = new ModeImpl() {
+                ModeItem modeItem = new ModeItem() {
+                    {
+                        position = -1;
+                        isChecked = false;
+                    }
+                };
+
+                @Override
+                protected void onTagItemClicked(View itemView, int position) {
+
+                    if (modeItem.position == position) {
+                        setItemChecked(position, itemView, false);
+                    } else {
+                        setItemChecked(position, itemView, true);
+                    }
+                }
+
+                @Override
+                public void setItemChecked(int position, View itemView, boolean value) {
+                    if (modeItem.position == -1) {
+
+                        modeItem.position = position;
+                        modeItem.isChecked = value;
+
+
+                    } else if (modeItem.position == position) {
+
+                        modeItem.position = -1;
+                        modeItem.isChecked = false;
+
+                    } else {
+
+                        mAdapter.notifyItemChanged(modeItem.position);
+
+                        modeItem.position = position;
+                        modeItem.isChecked = value;
+                    }
+
+                    if (itemView != null) {
+                        if (itemView instanceof Checkable) {
+                            Checkable tagItem = (Checkable) itemView;
+                            tagItem.setChecked(value);
+                        }
+                    } else {
+                        mAdapter.notifyItemChanged(position);
+                    }
+                }
+
+                @Override
+                public boolean isItemChecked(int position) {
+                    return modeItem.position == position;
+                }
+
+                public ModeItem getModeItem(int position) {
+                    if (modeItem.position == position) {
+                        return modeItem;
+                    }
+                    return null;
+                }
+
+                @Override
+                protected Mode getChoiceMode() {
+                    return Mode.SingleChoice;
+                }
+
+                @Override
+                public LinkedList<Integer> getSelectedPositions() {
+                    LinkedList<Integer> is = new LinkedList<>();
+                    if (modeItem.position != -1)
+                        is.add(modeItem.position);
+                    return is;
+                }
+
+                @Override
+                public void clearChoiceCache() {
                 }
             };
 
-            @Override
-            protected void onTagItemClicked(View itemView, int position) {
+            SingleChoice.mAdapter = adapter;
 
-                if (modeItem.position == position) {
-                    setItemChecked(position, itemView, false);
-                } else {
-                    setItemChecked(position, itemView, true);
-                }
-            }
+            return SingleChoice;
+        }
 
-            @Override
-            public void setItemChecked(int position, View itemView, boolean value) {
-                if (modeItem.position == -1) {
-
-                    modeItem.position = position;
-                    modeItem.isChecked = value;
-
-
-                } else if (modeItem.position == position) {
-
-                    modeItem.position = -1;
-                    modeItem.isChecked = false;
-
-                } else {
-
-                    mAdapter.notifyItemChanged(modeItem.position);
-
-                    modeItem.position = position;
-                    modeItem.isChecked = value;
-                }
-
-                if (itemView != null) {
-                    if (itemView instanceof Checkable) {
-                        Checkable tagItem = (Checkable) itemView;
-                        tagItem.setChecked(value);
+        static ModeImpl createModeMultiChoice(TagsAdapter adapter) {
+            ModeImpl MultiChoice = new ModeImpl() {
+                @Override
+                protected void onTagItemClicked(View itemView, int position) {
+                    if (isItemChecked(position)) {
+                        setItemChecked(position, itemView, false);
+                    } else {
+                        setItemChecked(position, itemView, true);
                     }
-                } else {
-                    mAdapter.notifyItemChanged(position);
                 }
-            }
 
-            @Override
-            public boolean isItemChecked(int position) {
-                return modeItem.position == position;
-            }
+                @Override
+                protected void setItemChecked(int position, View itemView, boolean value) {
+                    ModeItem modeItem = mSelectedItemsDict.get(position);
+                    if (modeItem != null) {
 
-            public ModeItem getModeItem(int position) {
-                if (modeItem.position == position) {
-                    return modeItem;
-                }
-                return null;
-            }
+                        modeItem.isChecked = value;
 
-            @Override
-            public LinkedList<Integer> getSelectedPositions() {
-                LinkedList<Integer> is = new LinkedList<>();
-                if(modeItem.position != -1)
-                    is.add(modeItem.position);
-                return is;
-            }
+                        if (!modeItem.isChecked) {
+                            mSelectedItemsDict.remove(position);
+                        }
 
-            @Override
-            public void clearChoiceCache() {
-            }
-        },
+                    } else {
 
-        /**
-         * 多选模式
-         */
-        MultiChoice() {
-            @Override
-            protected void onTagItemClicked(View itemView, int position) {
-                if(isItemChecked(position)){
-                    setItemChecked(position, itemView, false);
-                }else {
-                    setItemChecked(position, itemView, true);
-                }
-            }
+                        modeItem = new ModeItem();
+                        modeItem.position = position;
+                        modeItem.isChecked = value;
+                        mSelectedItemsDict.put(position, modeItem);
 
-            @Override
-            protected void setItemChecked(int position, View itemView, boolean value) {
-                ModeItem modeItem = mSelectedItemsDict.get(position);
-                if (modeItem != null) {
-
-                    modeItem.isChecked = value;
-
-                    if(!modeItem.isChecked){
-                        mSelectedItemsDict.remove(position);
                     }
 
-                } else {
 
-                    modeItem = new ModeItem();
-                    modeItem.position = position;
-                    modeItem.isChecked = value;
-                    mSelectedItemsDict.put(position, modeItem);
-
-                }
-
-
-                if (itemView != null) {
-                    if (itemView instanceof Checkable) {
-                        Checkable tagItem = (Checkable) itemView;
-                        tagItem.setChecked(value);
+                    if (itemView != null) {
+                        if (itemView instanceof Checkable) {
+                            Checkable tagItem = (Checkable) itemView;
+                            tagItem.setChecked(value);
+                        }
+                    } else {
+                        mAdapter.notifyItemChanged(position);
                     }
-                } else {
-                    mAdapter.notifyItemChanged(position);
                 }
-            }
 
-            @Override
-            protected void clearChoiceCache() {
-                mSelectedItemsDict.clear();
-                mAdapter.notifyDataSetChanged();
-            }
+                @Override
+                protected void clearChoiceCache() {
+                    mSelectedItemsDict.clear();
+                    mAdapter.notifyDataSetChanged();
+                }
 
-            @Override
-            protected boolean isItemChecked(int position) {
-                ModeItem item = mSelectedItemsDict.get(position);
-                if (item == null) {
+                @Override
+                protected boolean isItemChecked(int position) {
+                    ModeItem item = mSelectedItemsDict.get(position);
+                    if (item == null) {
+                        return false;
+                    } else {
+                        return item.isChecked;
+                    }
+                }
+
+                @Override
+                protected LinkedList<Integer> getSelectedPositions() {
+                    return new LinkedList<>(mSelectedItemsDict.keySet());
+                }
+
+                @Override
+                protected ModeItem getModeItem(int position) {
+                    return mSelectedItemsDict.get(position);
+                }
+
+                @Override
+                protected Mode getChoiceMode() {
+                    return Mode.MultiChoice;
+                }
+            };
+
+            MultiChoice.mAdapter = adapter;
+
+            return MultiChoice;
+        }
+
+        static ModeImpl createNoneChoice(TagsAdapter adapter) {
+            ModeImpl NoneChoice = new ModeImpl() {
+                @Override
+                protected void onTagItemClicked(View itemView, int position) {
+
+                }
+
+                @Override
+                public void clearChoiceCache() {
+
+                }
+
+                @Override
+                public boolean isItemChecked(int position) {
                     return false;
-                } else {
-                    return item.isChecked;
                 }
-            }
 
-            @Override
-            protected LinkedList<Integer> getSelectedPositions() {
-                return new LinkedList<>(mSelectedItemsDict.keySet());
-            }
+                @Override
+                protected LinkedList<Integer> getSelectedPositions() {
+                    return new LinkedList<>();
+                }
 
-            @Override
-            protected ModeItem getModeItem(int position) {
-                return mSelectedItemsDict.get(position);
-            }
-        },
+                @Override
+                protected ModeItem getModeItem(int position) {
+                    return null;
+                }
+
+                @Override
+                protected Mode getChoiceMode() {
+                    return Mode.None;
+                }
+
+                @Override
+                public void setItemChecked(int position, View itemView, boolean value) {
+
+                }
+            };
+
+            NoneChoice.mAdapter = adapter;
+
+            return NoneChoice;
+        }
         /**
          * 没有选中模式
          */
-        None {
-            @Override
-            protected void onTagItemClicked(View itemView, int position) {
-
-            }
-
-            @Override
-            public void clearChoiceCache() {
-
-            }
-
-            @Override
-            public boolean isItemChecked(int position) {
-                return false;
-            }
-
-            @Override
-            protected LinkedList<Integer> getSelectedPositions() {
-                return new LinkedList<>();
-            }
-
-            @Override
-            protected ModeItem getModeItem(int position) {
-                return null;
-            }
-
-            @Override
-            public void setItemChecked(int position, View itemView, boolean value) {
-
-            }
-        };
 
         /**
          * 选中的Positions
@@ -400,6 +455,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
         /**
          * 点击Item
+         *
          * @param itemView
          * @param position
          */
@@ -412,6 +468,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
         /**
          * 设置Item 选中
+         *
          * @param position
          * @param itemView
          * @param value
@@ -420,6 +477,7 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
         /**
          * Item是否被选中
+         *
          * @param position
          * @return
          */
@@ -427,47 +485,32 @@ public abstract class TagsAdapter<D> extends EXTRecyclerAdapter<D> {
 
         /**
          * 获取选中的位置
+         *
          * @return
          */
         protected abstract LinkedList<Integer> getSelectedPositions();
 
         /**
          * 获取选中节点具体数据
+         *
          * @param position
          * @return
          */
         protected abstract ModeItem getModeItem(int position);
 
-        /**
-         * 检查时机
-         */
-        public static final int AFTER_BIND_DATA = 1;
-        public static final int NONE_CHECK = 0;
-        public static final int BEFORE_BIND_DATA = -1;
-        int mCheckMode = BEFORE_BIND_DATA;
+        CheckTime mCheckTime = CheckTime.BeforeBind;
 
-        protected final Mode setCheckMode(int value){
-            if(value > 0){
-                mCheckMode = AFTER_BIND_DATA;
-            }else if(value < 0){
-                mCheckMode = BEFORE_BIND_DATA;
-            }else {
-                mCheckMode = NONE_CHECK;
-            }
-
+        protected final ModeImpl setCheckTime(CheckTime time) {
+            time = time == null ? mCheckTime : time;
+            mCheckTime = time;
             return this;
         }
 
-        protected final int getCheckMode(){
-            return mCheckMode;
+        protected final CheckTime getCheckTime() {
+            return mCheckTime;
         }
-    }
 
-    private static class ModeItem {
-
-        int position;
-        boolean isChecked;
-
+        protected abstract Mode getChoiceMode();
     }
 
 }
